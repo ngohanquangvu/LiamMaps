@@ -1,0 +1,140 @@
+app = customtkinter.CTk()
+app.title("SPAM MAIL | BY TENICA")
+app.geometry("450x530")
+
+file_sender = []
+file_receiver = []
+content = ""
+file_attach = ""
+
+def contents():
+    global content
+    file_content = filedialog.askopenfilename(title="Chọn file Template")
+    frame_text_box.configure(state = "normal")
+    content = open(file_content,errors="replace").read()
+    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+    frame_text_box.insert(customtkinter.END, f'Nhập thành công file Template: {file_content}\n\n')
+    frame_text_box.configure(state = "disabled")
+
+def open_uid():
+    global file_sender
+    file_sound = filedialog.askopenfilename(title="Chọn file mail gửi")
+    frame_text_box.configure(state = "normal")
+    list_uid = open(file_sound, "r", encoding="utf-8").readlines()
+    file_sender = [line.strip("\n") for line in list_uid]
+    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+    frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_sender)} sender \n\n')
+    frame_text_box.configure(state = "disabled")
+
+
+def open_ck():
+    global file_receiver
+    file_text_path = filedialog.askopenfilename(title="Chọn file mail nhận")
+    frame_text_box.configure(state = "normal")
+    list_ck = open(file_text_path, "r", encoding="utf-8").readlines()
+    file_receiver = [line.strip("\n") for line in list_ck]
+    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+    frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_receiver)} reciever\n\n')
+    frame_text_box.configure(state = "disabled")
+
+def attach_file():
+    global file_attach
+    file_text_path = filedialog.askopenfilename(title="Chọn file đính kém")
+    frame_text_box.configure(state = "normal")
+    file_attach = file_text_path
+    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+    frame_text_box.insert(customtkinter.END, f'Nhập thành công file đính kèm: {file_text_path}\n\n')
+    frame_text_box.configure(state = "disabled")
+index_ck = 0
+
+def send_mess():
+    def run(imap,port,email,pss,subject,receiver,content):
+        server = smtplib.SMTP(imap, port)
+        server.starttls()
+        server.login(email,pss)
+
+        msg = MIMEMultipart()
+        msg['From'] = email
+        msg['To'] = receiver
+        msg['Subject'] = subject
+
+
+        body = f"""
+        {content}
+        """
+
+        if file_attach != "":
+            from email.mime.application import MIMEApplication
+            with open(file_attach, 'rb') as f:
+                attachment = MIMEApplication(f.read(), _subtype='txt')
+                attachment.add_header('Content-Disposition', 'attachment', filename='text.txt')
+                msg.attach(attachment)
+        msg.attach(MIMEText(body, 'html'))
+
+        server.send_message(msg)
+        server.quit()
+    for j in file_receiver:
+        data = random.choice(file_sender).strip("\n").split("|")
+        imap = "smtp-mail.outlook.com"
+        port = 587
+        mail = data[0]
+        pss = data[1]
+        i = j.strip("\n")
+        subject = subject_input.get()
+        try:
+            run(imap, port, mail, pss, subject, i, content)
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+            frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i}\n\n')
+            frame_text_box.configure(state = "disabled")
+            time.sleep(int(delay_input.get()))
+        except Exception as e:
+            print(e)
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+            frame_text_box.insert(customtkinter.END, f'Gửi thất bại tới {i}\n\n')
+            frame_text_box.configure(state = "disabled")
+            time.sleep(int(delay_input.get()))
+    frame_text_box.configure(state = "normal")
+    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+    frame_text_box.insert(customtkinter.END, f'Hoàn thành spam đến toàn bộ list mail \n\n')
+    frame_text_box.configure(state = "disabled")
+    
+
+def start():
+        t = threading.Thread(target=send_mess)
+        t.start()
+
+input_frame = customtkinter.CTkFrame(app, width = 410)
+input_frame.grid(row = 0, column = 0, padx = 20, pady = (20, 10))
+delay_input = customtkinter.CTkEntry(input_frame, width = 200, placeholder_text="Delay")
+delay_input.grid(row = 0, column = 0, padx = (0, 5))
+subject_input = customtkinter.CTkEntry(input_frame, width=200, placeholder_text="Tiêu đề")
+subject_input.grid(row = 0, column = 1, padx = (5, 0))
+
+button_frame = customtkinter.CTkFrame(app, width = 410, height= 50)
+button_frame.grid(row = 2, column = 0, pady = 10)
+
+start_button = customtkinter.CTkButton(app, width = 410, height = 50, text = 'Start', command=start)
+start_button.grid(row = 1, column = 0, padx = (0,0))
+
+start_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'File', command=attach_file)
+start_button.grid(row = 0, column = 1, padx = (0,0))
+
+txt_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Template', command=contents)
+txt_button.grid(row = 0, column = 2, padx = (10,10))
+
+file_ck = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Receiver',command=open_ck)
+file_ck.grid(row = 0, column = 3, padx = (0,0))
+
+file_uid = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Sender',command=open_uid)
+file_uid.grid(row = 0, column = 4, padx = (10,0))
+
+frame_text_box = customtkinter.CTkTextbox(app, width = 410, height= 320)
+frame_text_box.grid(row = 4, column = 0, pady = 10)
+font_log = customtkinter.CTkFont(family="Times New Roman", size=15, weight="normal", slant="italic")
+font_normal = customtkinter.CTkFont(family="Times New Roman", size=15, weight="normal")
+# frame_text_box.configure(font = font_log)
+frame_text_box.configure(state = "disabled")
+
+app.mainloop()
