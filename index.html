@@ -1,5 +1,5 @@
 app = customtkinter.CTk()
-app.title("SPAM MAIL | BY TENICA")
+app.title("SPAM MAIL")
 app.geometry("450x530")
 
 file_sender = []
@@ -10,41 +10,45 @@ file_attach = ""
 def contents():
     global content
     file_content = filedialog.askopenfilename(title="Chọn file Template")
-    frame_text_box.configure(state = "normal")
-    content = open(file_content,errors="replace").read()
-    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-    frame_text_box.insert(customtkinter.END, f'Nhập thành công file Template: {file_content}\n\n')
-    frame_text_box.configure(state = "disabled")
+    if file_content!="":
+        frame_text_box.configure(state = "normal")
+        content = open(file_content,errors="replace").read()
+        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+        frame_text_box.insert(customtkinter.END, f'Nhập thành công file Template: {file_content}\n\n')
+        frame_text_box.configure(state = "disabled")
 
 def open_uid():
     global file_sender
     file_sound = filedialog.askopenfilename(title="Chọn file mail gửi")
-    frame_text_box.configure(state = "normal")
-    list_uid = open(file_sound, "r", encoding="utf-8").readlines()
-    file_sender = [line.strip("\n") for line in list_uid]
-    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-    frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_sender)} sender \n\n')
-    frame_text_box.configure(state = "disabled")
+    if file_sound!="":
+        frame_text_box.configure(state = "normal")
+        list_uid = open(file_sound, "r", encoding="utf-8").readlines()
+        file_sender = [line.strip("\n") for line in list_uid]
+        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+        frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_sender)} sender \n\n')
+        frame_text_box.configure(state = "disabled")
 
 
 def open_ck():
     global file_receiver
     file_text_path = filedialog.askopenfilename(title="Chọn file mail nhận")
-    frame_text_box.configure(state = "normal")
-    list_ck = open(file_text_path, "r", encoding="utf-8").readlines()
-    file_receiver = [line.strip("\n") for line in list_ck]
-    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-    frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_receiver)} reciever\n\n')
-    frame_text_box.configure(state = "disabled")
+    if file_text_path!="":
+        frame_text_box.configure(state = "normal")
+        list_ck = open(file_text_path, "r", encoding="utf-8").readlines()
+        file_receiver = [line.strip("\n") for line in list_ck]
+        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+        frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_receiver)} reciever\n\n')
+        frame_text_box.configure(state = "disabled")
 
 def attach_file():
     global file_attach
     file_text_path = filedialog.askopenfilename(title="Chọn file đính kém")
-    frame_text_box.configure(state = "normal")
-    file_attach = file_text_path
-    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-    frame_text_box.insert(customtkinter.END, f'Nhập thành công file đính kèm: {file_text_path}\n\n')
-    frame_text_box.configure(state = "disabled")
+    if file_text_path!="":
+        frame_text_box.configure(state = "normal")
+        file_attach = file_text_path
+        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+        frame_text_box.insert(customtkinter.END, f'Nhập thành công file đính kèm: {file_text_path}\n\n')
+        frame_text_box.configure(state = "disabled")
 index_ck = 0
 
 def send_mess():
@@ -66,10 +70,11 @@ def send_mess():
         if file_attach != "":
             from email.mime.application import MIMEApplication
             with open(file_attach, 'rb') as f:
-                attachment = MIMEApplication(f.read(), _subtype='txt')
-                attachment.add_header('Content-Disposition', 'attachment', filename='text.txt')
+                attachment = MIMEApplication(f.read())
+                attachment.add_header('Content-Disposition', 'attachment', filename=f.name)
                 msg.attach(attachment)
-        msg.attach(MIMEText(body, 'html'))
+        if content!="":
+            msg.attach(MIMEText(body, 'html'))
 
         server.send_message(msg)
         server.quit()
