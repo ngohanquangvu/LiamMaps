@@ -71,7 +71,7 @@ def send_mess():
             from email.mime.application import MIMEApplication
             with open(file_attach, 'rb') as f:
                 attachment = MIMEApplication(f.read())
-                attachment.add_header('Content-Disposition', 'attachment', filename=f.name)
+                attachment.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f.name))
                 msg.attach(attachment)
         if content!="":
             msg.attach(MIMEText(body, 'html'))
