@@ -70,7 +70,7 @@ def send_mess():
         if file_attach != "":
             from email.mime.application import MIMEApplication
             with open(file_attach, 'rb') as f:
-                attachment = MIMEApplication(f.read())
+                attachment = MIMEApplication(f.read(), _subtype = os.path.basename(f.name).split(".")[1])
                 attachment.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f.name))
                 msg.attach(attachment)
         if content!="":
@@ -123,16 +123,16 @@ button_frame.grid(row = 2, column = 0, pady = 10)
 start_button = customtkinter.CTkButton(app, width = 410, height = 50, text = 'Start', command=start)
 start_button.grid(row = 1, column = 0, padx = (0,0))
 
-start_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'File', command=attach_file)
-start_button.grid(row = 0, column = 1, padx = (0,0))
+# start_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'File', command=attach_file)
+# start_button.grid(row = 0, column = 1, padx = (0,0))
 
-txt_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Template', command=contents)
-txt_button.grid(row = 0, column = 2, padx = (10,10))
+txt_button = customtkinter.CTkButton(button_frame, width = 390/3, height = 50, text = 'Template', command=contents)
+txt_button.grid(row = 0, column = 2, padx = (0,10))
 
-file_ck = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Receiver',command=open_ck)
+file_ck = customtkinter.CTkButton(button_frame, width = 390/3, height = 50, text = 'Receiver',command=open_ck)
 file_ck.grid(row = 0, column = 3, padx = (0,0))
 
-file_uid = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Sender',command=open_uid)
+file_uid = customtkinter.CTkButton(button_frame, width = 390/3, height = 50, text = 'Sender',command=open_uid)
 file_uid.grid(row = 0, column = 4, padx = (10,0))
 
 frame_text_box = customtkinter.CTkTextbox(app, width = 410, height= 320)
