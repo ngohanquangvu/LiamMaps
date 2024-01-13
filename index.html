@@ -123,16 +123,16 @@ button_frame.grid(row = 2, column = 0, pady = 10)
 start_button = customtkinter.CTkButton(app, width = 410, height = 50, text = 'Start', command=start)
 start_button.grid(row = 1, column = 0, padx = (0,0))
 
-# start_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'File', command=attach_file)
-# start_button.grid(row = 0, column = 1, padx = (0,0))
+start_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'File', command=attach_file)
+start_button.grid(row = 0, column = 1, padx = (0,10))
 
-txt_button = customtkinter.CTkButton(button_frame, width = 390/3, height = 50, text = 'Template', command=contents)
+txt_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Template', command=contents)
 txt_button.grid(row = 0, column = 2, padx = (0,10))
 
-file_ck = customtkinter.CTkButton(button_frame, width = 390/3, height = 50, text = 'Receiver',command=open_ck)
+file_ck = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Receiver',command=open_ck)
 file_ck.grid(row = 0, column = 3, padx = (0,0))
 
-file_uid = customtkinter.CTkButton(button_frame, width = 390/3, height = 50, text = 'Sender',command=open_uid)
+file_uid = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'Sender',command=open_uid)
 file_uid.grid(row = 0, column = 4, padx = (10,0))
 
 frame_text_box = customtkinter.CTkTextbox(app, width = 410, height= 320)
