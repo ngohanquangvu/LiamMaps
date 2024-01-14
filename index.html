@@ -12,7 +12,7 @@ def contents():
     file_content = filedialog.askopenfilename(title="Chọn file Template")
     if file_content!="":
         frame_text_box.configure(state = "normal")
-        content = open(file_content,errors="replace").read()
+        content = open(file_content,errors="replace", encoding="utf-8").read()
         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
         frame_text_box.insert(customtkinter.END, f'Nhập thành công file Template: {file_content}\n\n')
         frame_text_box.configure(state = "disabled")
@@ -74,7 +74,7 @@ def send_mess():
                 attachment.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f.name))
                 msg.attach(attachment)
         if content!="":
-            msg.attach(MIMEText(body, 'html'))
+            msg.attach(MIMEText(body, 'html', "utf-8"))
 
         server.send_message(msg)
         server.quit()
