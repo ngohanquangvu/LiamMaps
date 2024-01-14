@@ -94,7 +94,7 @@ def send_mess():
             frame_text_box.configure(state = "disabled")
             time.sleep(int(delay_input.get()))
         except Exception as e:
-            print(e)
+            open("log.txt", "a", encoding="utf-8").write(e+"\n")
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'Gửi thất bại tới {i}\n\n')
