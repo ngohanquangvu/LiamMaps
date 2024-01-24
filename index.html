@@ -53,31 +53,47 @@ index_ck = 0
 
 def send_mess():
     def run(imap,port,email,pss,subject,receiver,content):
-        server = smtplib.SMTP(imap, port)
-        server.starttls()
-        server.login(email,pss)
+        try:
+            server = smtplib.SMTP(imap, port)
+            server.starttls()
+            server.login(email,pss)
 
-        msg = MIMEMultipart()
-        msg['From'] = email
-        msg['To'] = receiver
-        msg['Subject'] = subject
+            msg = MIMEMultipart()
+            msg['From'] = email
+            msg['To'] = receiver
+            msg['Subject'] = subject
 
 
-        body = f"""
-        {content}
-        """
+            body = f"""
+            {content}
+            """
 
-        if file_attach != "":
-            from email.mime.application import MIMEApplication
-            with open(file_attach, 'rb') as f:
-                attachment = MIMEApplication(f.read(), _subtype = os.path.basename(f.name).split(".")[1])
-                attachment.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f.name))
-                msg.attach(attachment)
-        if content!="":
-            msg.attach(MIMEText(body, 'html', "utf-8"))
+            if file_attach != "":
+                from email.mime.application import MIMEApplication
+                with open(file_attach, 'rb') as f:
+                    attachment = MIMEApplication(f.read(), _subtype = os.path.basename(f.name).split(".")[1])
+                    attachment.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f.name))
+                    msg.attach(attachment)
+            if content!="":
+                msg.attach(MIMEText(body, 'html', "utf-8"))
 
-        server.send_message(msg)
-        server.quit()
+            server.send_message(msg)
+            server.quit()
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+            frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i}\n\n')
+            frame_text_box.configure(state = "disabled")
+        except smtplib.SMTPAuthenticationError:
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+            frame_text_box.insert(customtkinter.END, f'{email}|{pss} bị khóa hoặc sai pass\n\n')
+            frame_text_box.configure(state = "disabled")
+        except:
+            open("log.txt", "a", encoding="utf-8").write(e+"\n")
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+            frame_text_box.insert(customtkinter.END, f'Gửi thất bại tới {i}\n\n')
+            frame_text_box.configure(state = "disabled")
     for j in file_receiver:
         data = random.choice(file_sender).strip("\n").split("|")
         imap = "smtp-mail.outlook.com"
@@ -86,20 +102,8 @@ def send_mess():
         pss = data[1]
         i = j.strip("\n")
         subject = subject_input.get()
-        try:
-            run(imap, port, mail, pss, subject, i, content)
-            frame_text_box.configure(state = "normal")
-            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-            frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i}\n\n')
-            frame_text_box.configure(state = "disabled")
-            time.sleep(int(delay_input.get()))
-        except Exception as e:
-            open("log.txt", "a", encoding="utf-8").write(e+"\n")
-            frame_text_box.configure(state = "normal")
-            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-            frame_text_box.insert(customtkinter.END, f'Gửi thất bại tới {i}\n\n')
-            frame_text_box.configure(state = "disabled")
-            time.sleep(int(delay_input.get()))
+        run(imap, port, mail, pss, subject, i, content)
+        time.sleep(int(delay_input.get()))
     frame_text_box.configure(state = "normal")
     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
     frame_text_box.insert(customtkinter.END, f'Hoàn thành spam đến toàn bộ list mail \n\n')
