@@ -52,8 +52,9 @@ def attach_file():
 index_ck = 0
 
 def send_mess():
-    def run(imap,port,data,subject,receiver,content):
+    def run(imap,port,subject,receiver,content):
         try:
+            data = random.choice(file_sender).strip("\n").split("|")
             email = data[0]
             pss = data[1]
             server = smtplib.SMTP(imap, port)
@@ -90,19 +91,20 @@ def send_mess():
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'{email}|{pss} bị khóa hoặc sai pass\n\n')
             frame_text_box.configure(state = "disabled")
+            run(imap,port,subject,receiver,content)
         except Exception as e:
             open("log.txt", "a", encoding="utf-8").write(e+"\n")
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'Gửi thất bại tới {i}\n\n')
             frame_text_box.configure(state = "disabled")
+            run(imap,port,subject,receiver,content)
     for j in file_receiver:
-        data = random.choice(file_sender).strip("\n").split("|")
         imap = "smtp-mail.outlook.com"
         port = 587
         i = j.strip("\n")
         subject = subject_input.get()
-        run(imap, port,data, subject, i, content)
+        run(imap, port, subject, i, content)
         time.sleep(int(delay_input.get()))
     frame_text_box.configure(state = "normal")
     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
