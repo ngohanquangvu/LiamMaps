@@ -3,9 +3,31 @@ app.title("SPAM MAIL")
 app.geometry("450x530")
 
 file_sender = []
+list_key_proxy = []
 file_receiver = []
 content = ""
 file_attach = ""
+
+def set_up_proxy(proxy):
+    os.system(f'''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /t REG_SZ /d {proxy} /f
+taskkill /f /im SystemSettings.exe && start ms-settings:network-proxy
+taskkill /f /im SystemSettings.exe''')
+    frame_text_box.configure(state = "normal")
+    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+    frame_text_box.insert(customtkinter.END, f'Thiết lập proxy {proxy} thành công\n\n')
+    frame_text_box.configure(state = "disabled")
+
+def turn_on():
+    os.system('''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f
+taskkill /f /im SystemSettings.exe && start ms-settings:network-proxy
+taskkill /f /im SystemSettings.exe''')
+    
+def clear_proxy():
+    os.system('''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f
+reg delete "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /f
+reg delete "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyOverride /f
+taskkill /f /im SystemSettings.exe && start ms-settings:network-proxy
+taskkill /f /im SystemSettings.exe''')
 
 def contents():
     global content
@@ -27,6 +49,69 @@ def open_uid():
         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
         frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_sender)} sender \n\n')
         frame_text_box.configure(state = "disabled")
+
+def open_proxy_key():
+    global list_key_proxy
+    file_sound = filedialog.askopenfilename(title="Chọn file key proxy")
+    if file_sound!="":
+        frame_text_box.configure(state = "normal")
+        list_uid = open(file_sound, "r", encoding="utf-8").readlines()
+        list_key_proxy = [line.strip("\n") for line in list_uid]
+        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+        frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(list_key_proxy)} sender \n\n')
+        frame_text_box.configure(state = "disabled")
+
+def get_proxy():
+    global list_key_proxy
+    try:
+        if len(list_key_proxy)>0:
+                k = random.choice(list_key_proxy)
+                a = requests.get(f"http://proxy.shoplike.vn/Api/getNewProxy?access_token={k}").json()
+                if '"status":"success"' in a.text:
+                    frame_text_box.configure(state = "normal")
+                    frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+                    frame_text_box.insert(customtkinter.END, f'Lấy proxy thành công\n\n')
+                    frame_text_box.configure(state = "disabled")
+                    return a["proxy"]
+                else:
+                    if "giay de get proxy moi" in a:
+                        aa = requests.get(f"http://proxy.shoplike.vn/Api/getCurrentProxy?access_token={k}").json()
+                        frame_text_box.configure(state = "normal")
+                        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+                        frame_text_box.insert(customtkinter.END, f'Lấy proxy thành công\n\n')
+                        frame_text_box.configure(state = "disabled")
+                        return aa["data"].get("proxy")
+                    elif "Het proxy, thu lai sau" in a.text:
+                        frame_text_box.configure(state = "normal")
+                        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+                        frame_text_box.insert(customtkinter.END, f'Tạm thời hết proxy, đợi 10s để tiến hành lấy lại\n\n')
+                        frame_text_box.configure(state = "disabled")
+                        time.sleep(10)
+                        return get_proxy()
+                    elif "Key khong ton tai hoac da het han" in a.text:
+                        frame_text_box.configure(state = "normal")
+                        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+                        frame_text_box.insert(customtkinter.END, f'Key {k} hết hạn, tiến hành đổi key proxy\n\n')
+                        frame_text_box.configure(state = "disabled")
+                        list_key_proxy.remove(k)
+                        return get_proxy()
+                    else:
+                        frame_text_box.configure(state = "normal")
+                        frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+                        frame_text_box.insert(customtkinter.END, f'Lấy proxy thất bại, tiến hành lấy lại\n\n')
+                        frame_text_box.configure(state = "disabled")
+                        time.sleep(10)
+                        return get_proxy()
+
+        else:
+            return "None proxy"
+    except:
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+            frame_text_box.insert(customtkinter.END, f'Lấy proxy không thành công\n\n')
+            frame_text_box.configure(state = "disabled")
+            return get_proxy()
+
 
 
 def open_ck():
@@ -54,6 +139,9 @@ index_ck = 0
 def send_mess():
     def run(imap,port,subject,receiver,content):
         try:
+            p = get_proxy()
+            set_up_proxy(p)
+            turn_on()
             data = random.choice(file_sender).strip("\n").split("|")
             email = data[0]
             pss = data[1]
@@ -93,7 +181,7 @@ def send_mess():
             frame_text_box.configure(state = "disabled")
             run(imap,port,subject,receiver,content)
         except Exception as e:
-            open("log.txt", "a", encoding="utf-8").write(e+"\n")
+            open("log.txt", "a", encoding="utf-8").write(str(e)+"\n")
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'Gửi thất bại tới {i}\n\n')
@@ -106,6 +194,7 @@ def send_mess():
         subject = subject_input.get()
         run(imap, port, subject, i, content)
         time.sleep(int(delay_input.get()))
+    clear_proxy()
     frame_text_box.configure(state = "normal")
     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
     frame_text_box.insert(customtkinter.END, f'Hoàn thành spam đến toàn bộ list mail \n\n')
@@ -126,8 +215,14 @@ subject_input.grid(row = 0, column = 1, padx = (5, 0))
 button_frame = customtkinter.CTkFrame(app, width = 410, height= 50)
 button_frame.grid(row = 2, column = 0, pady = 10)
 
-start_button = customtkinter.CTkButton(app, width = 410, height = 50, text = 'Start', command=start)
-start_button.grid(row = 1, column = 0, padx = (0,0))
+start_button_frame = customtkinter.CTkFrame(app, width = 410, height = 50)
+start_button_frame.grid(row = 1, column = 0, padx = (0,0))
+
+start_button = customtkinter.CTkButton(start_button_frame, width = 200, height = 50, text = 'Start', command=start)
+start_button.grid(row = 0, column = 0, padx = (0,5))
+
+start_button = customtkinter.CTkButton(start_button_frame, width = 200, height = 50, text = 'Key Proxy', command=open_proxy_key)
+start_button.grid(row = 0, column = 1, padx = (5,0))
 
 start_button = customtkinter.CTkButton(button_frame, width = 95, height = 50, text = 'File', command=attach_file)
 start_button.grid(row = 0, column = 1, padx = (0,10))
