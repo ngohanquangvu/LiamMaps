@@ -195,7 +195,6 @@ def send_mess():
         run(imap, port, subject, i, content)
         clear_proxy()
         time.sleep(int(delay_input.get()))
-    clear_proxy()
     frame_text_box.configure(state = "normal")
     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
     frame_text_box.insert(customtkinter.END, f'Hoàn thành spam đến toàn bộ list mail \n\n')
