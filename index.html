@@ -66,19 +66,19 @@ def get_proxy():
     try:
         if len(list_key_proxy)>0:
                 k = random.choice(list_key_proxy)
-                a = requests.get(f"http://proxy.shoplike.vn/Api/getNewProxy?access_token={k}").json()
+                a = requests.get(f"http://proxy.shoplike.vn/Api/getNewProxy?access_token={k}")
                 try:
                     frame_text_box.configure(state = "normal")
                     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
                     frame_text_box.insert(customtkinter.END, f'Lấy proxy thành công\n\n')
                     frame_text_box.configure(state = "disabled")
-                    return a["data"].get("proxy")
+                    return a.json()["data"].get("proxy")
                 except:
-                    if "giay de get proxy moi" in a:
+                    if "giay de get proxy moi" in a.text:
                         aa = requests.get(f"http://proxy.shoplike.vn/Api/getCurrentProxy?access_token={k}").json()
                         frame_text_box.configure(state = "normal")
                         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-                        frame_text_box.insert(customtkinter.END, f'Lấy proxy thành công\n\n')
+                        frame_text_box.insert(customtkinter.END, f'Proxy chưa reset, lấy proxy hnện tại thành công\n\n')
                         frame_text_box.configure(state = "disabled")
                         return aa["data"].get("proxy")
                     elif "Het proxy, thu lai sau" in a.text:
@@ -105,7 +105,8 @@ def get_proxy():
 
         else:
             return "None"
-    except:
+    except Exception as e:
+            print(e)
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'Lấy proxy không thành công\n\n')
@@ -179,7 +180,7 @@ def send_mess():
             server.quit()
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-            frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i} bằng {data}\n\n')
+            frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i} bằng {email}|{pss}\n\n')
             frame_text_box.configure(state = "disabled")
         except smtplib.SMTPAuthenticationError:
             frame_text_box.configure(state = "normal")
