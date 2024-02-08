@@ -8,12 +8,6 @@ file_receiver = []
 content = ""
 file_attach = ""
 
-if os.path.exists("./Logs")==False:
-    os.mkdir("./Logs")
-
-folder_name = str(datetime.datetime.now().strftime("%d_%m_%Y"))
-
-open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8")
 
 def set_up_proxy(proxy):
     os.system(f'''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /t REG_SZ /d {proxy} /f
@@ -23,7 +17,6 @@ taskkill /f /im SystemSettings.exe''')
     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
     frame_text_box.insert(customtkinter.END, f'Thiết lập proxy {proxy} thành công\n\n')
     frame_text_box.configure(state = "disabled")
-    # open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nThiết lập proxy {proxy} thành công\n\n")
 
 def turn_on():
     os.system('''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f
@@ -46,7 +39,6 @@ def contents():
         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
         frame_text_box.insert(customtkinter.END, f'Nhập thành công file Template: {file_content}\n\n')
         frame_text_box.configure(state = "disabled")
-        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nNhập thành công file Template: {file_content}\n\nn")
 
 def open_uid():
     global file_sender
@@ -58,7 +50,6 @@ def open_uid():
         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
         frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_sender)} sender \n\n')
         frame_text_box.configure(state = "disabled")
-        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nNhập thành công {len(file_sender)} sender \n\n")
 
 def open_proxy_key():
     global list_key_proxy
@@ -70,7 +61,6 @@ def open_proxy_key():
         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
         frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(list_key_proxy)} sender \n\n')
         frame_text_box.configure(state = "disabled")
-        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nNhập thành công {len(list_key_proxy)} sender \n\n")
 
 
 def get_proxy():
@@ -84,7 +74,6 @@ def get_proxy():
                     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
                     frame_text_box.insert(customtkinter.END, f'Lấy proxy thành công\n\n')
                     frame_text_box.configure(state = "disabled")
-                    open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nLấy proxy thành công\n\n")
                     return a.json()["data"].get("proxy")
                 except:
                     if "giay de get proxy moi" in a.text:
@@ -93,14 +82,12 @@ def get_proxy():
                         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
                         frame_text_box.insert(customtkinter.END, f'Proxy chưa reset, lấy proxy hiện tại thành công\n\n')
                         frame_text_box.configure(state = "disabled")
-                        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nProxy chưa reset, lấy proxy hiện tại thành công\n\n")
                         return aa["data"].get("proxy")
                     elif "Het proxy, thu lai sau" in a.text:
                         frame_text_box.configure(state = "normal")
                         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
                         frame_text_box.insert(customtkinter.END, f'Tạm thời hết proxy, đợi 10s để tiến hành lấy lại\n\n')
                         frame_text_box.configure(state = "disabled")
-                        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nTạm thời hết proxy, đợi 10s để tiến hành lấy lại\n\n")
                         time.sleep(10)
                         return get_proxy()
                     elif "Key khong ton tai hoac da het han" in a.text:
@@ -108,7 +95,6 @@ def get_proxy():
                         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
                         frame_text_box.insert(customtkinter.END, f'Key {k} hết hạn, tiến hành đổi key proxy\n\n')
                         frame_text_box.configure(state = "disabled")
-                        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nKey {k} hết hạn, tiến hành đổi key proxy\n\n")
                         list_key_proxy.remove(k)
                         return get_proxy()
                     else:
@@ -116,7 +102,6 @@ def get_proxy():
                         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
                         frame_text_box.insert(customtkinter.END, f'Lấy proxy thất bại, tiến hành lấy lại\n\n')
                         frame_text_box.configure(state = "disabled")
-                        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nLấy proxy thất bại, tiến hành lấy lại\n\n")
                         time.sleep(10)
                         return get_proxy()
 
@@ -128,7 +113,6 @@ def get_proxy():
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'Lấy proxy không thành công\n\n')
             frame_text_box.configure(state = "disabled")
-            open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nLấy proxy thành công\n\n")
             return get_proxy()
 
 
@@ -143,7 +127,6 @@ def open_ck():
         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
         frame_text_box.insert(customtkinter.END, f'Nhập thành công {len(file_receiver)} reciever\n\n')
         frame_text_box.configure(state = "disabled")
-        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nNhập thành công {len(file_receiver)} reciever\n\n")
 
 def attach_file():
     global file_attach
@@ -154,7 +137,6 @@ def attach_file():
         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
         frame_text_box.insert(customtkinter.END, f'Nhập thành công file đính kèm: {file_text_path}\n\n')
         frame_text_box.configure(state = "disabled")
-        open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nNhập thành công file đính kèm: {file_text_path}\n\n")
 index_ck = 0
 
 def send_mess():
@@ -203,14 +185,12 @@ def send_mess():
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i} bằng {email}|{pss}\n\n')
             frame_text_box.configure(state = "disabled")
-            open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nGửi thành công tới {i} bằng {email}|{pss}\n\n")
 
         except smtplib.SMTPAuthenticationError:
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'{email}|{pss} bị khóa hoặc sai pass\n\n')
             frame_text_box.configure(state = "disabled")
-            open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n{email}|{pss} bị khóa hoặc sai pass\n\n")
             file_sender.remove(dadada)
             run(subject,receiver,content)
         except Exception as e:
@@ -218,7 +198,6 @@ def send_mess():
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
             frame_text_box.insert(customtkinter.END, f'Gửi thất bại tới {i}\n\n')
             frame_text_box.configure(state = "disabled")
-            open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nGửi thất bại tới {i}\n\n")
             run(subject,receiver,content)
     for j in file_receiver:
         i = j.strip("\n")
@@ -230,7 +209,6 @@ def send_mess():
     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
     frame_text_box.insert(customtkinter.END, f'Hoàn thành spam đến toàn bộ list mail \n\n')
     frame_text_box.configure(state = "disabled")
-    open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8").write(f"--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\nHoàn thành spam đến toàn bộ list mail \n\n")
 
     
 
