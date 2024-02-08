@@ -78,7 +78,7 @@ def get_proxy():
                         aa = requests.get(f"http://proxy.shoplike.vn/Api/getCurrentProxy?access_token={k}").json()
                         frame_text_box.configure(state = "normal")
                         frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-                        frame_text_box.insert(customtkinter.END, f'Proxy chưa reset, lấy proxy hnện tại thành công\n\n')
+                        frame_text_box.insert(customtkinter.END, f'Proxy chưa reset, lấy proxy hiện tại thành công\n\n')
                         frame_text_box.configure(state = "disabled")
                         return aa["data"].get("proxy")
                     elif "Het proxy, thu lai sau" in a.text:
