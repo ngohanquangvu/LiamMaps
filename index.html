@@ -193,6 +193,7 @@ def send_mess():
         i = j.strip("\n")
         subject = subject_input.get()
         run(imap, port, subject, i, content)
+        clear_proxy()
         time.sleep(int(delay_input.get()))
     clear_proxy()
     frame_text_box.configure(state = "normal")
