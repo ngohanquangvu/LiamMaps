@@ -67,13 +67,13 @@ def get_proxy():
         if len(list_key_proxy)>0:
                 k = random.choice(list_key_proxy)
                 a = requests.get(f"http://proxy.shoplike.vn/Api/getNewProxy?access_token={k}").json()
-                if '"status":"success"' in a.text:
+                try:
                     frame_text_box.configure(state = "normal")
                     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
                     frame_text_box.insert(customtkinter.END, f'Lấy proxy thành công\n\n')
                     frame_text_box.configure(state = "disabled")
-                    return a["proxy"]
-                else:
+                    return a["data"].get("proxy")
+                except:
                     if "giay de get proxy moi" in a:
                         aa = requests.get(f"http://proxy.shoplike.vn/Api/getCurrentProxy?access_token={k}").json()
                         frame_text_box.configure(state = "normal")
@@ -104,7 +104,7 @@ def get_proxy():
                         return get_proxy()
 
         else:
-            return "None proxy"
+            return "None"
     except:
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
@@ -137,14 +137,21 @@ def attach_file():
 index_ck = 0
 
 def send_mess():
-    def run(imap,port,subject,receiver,content):
+    def run(subject,receiver,content):
         try:
             p = get_proxy()
-            set_up_proxy(p)
-            turn_on()
+            if p != "None":
+                set_up_proxy(p)
+                turn_on()
             data = random.choice(file_sender).strip("\n").split("|")
             email = data[0]
             pss = data[1]
+            if email.split(":")[0].split("@")[1]=="gmail.com":
+                imap = "smtp.gmail.com"
+                port = 587
+            else:
+                imap = "smtp-mail.outlook.com"
+                port = 587
             server = smtplib.SMTP(imap, port)
             server.starttls()
             server.login(email,pss)
@@ -172,7 +179,7 @@ def send_mess():
             server.quit()
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
-            frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i} bằng\n\n')
+            frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i} bằng {data}\n\n')
             frame_text_box.configure(state = "disabled")
         except smtplib.SMTPAuthenticationError:
             frame_text_box.configure(state = "normal")
@@ -188,13 +195,17 @@ def send_mess():
             frame_text_box.configure(state = "disabled")
             run(imap,port,subject,receiver,content)
     for j in file_receiver:
-        imap = "smtp-mail.outlook.com"
-        port = 587
         i = j.strip("\n")
-        subject = subject_input.get()
-        run(imap, port, subject, i, content)
-        clear_proxy()
-        time.sleep(int(delay_input.get()))
+        try:
+            subject = subject_input.get()
+            run(subject, i, content)
+            time.sleep(int(delay_input.get()))
+        except:
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
+            frame_text_box.insert(customtkinter.END, f'Mail {i} không hợp lệ \n\n')
+            frame_text_box.configure(state = "disabled")
+    clear_proxy()
     frame_text_box.configure(state = "normal")
     frame_text_box.insert(customtkinter.END, f'--- {datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")} ---\n')
     frame_text_box.insert(customtkinter.END, f'Hoàn thành spam đến toàn bộ list mail \n\n')
