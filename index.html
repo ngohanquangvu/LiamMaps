@@ -13,8 +13,6 @@ if os.path.exists("./Logs")==False:
 
 folder_name = str(datetime.datetime.now().strftime("%d_%m_%Y"))
 
-open(f"./Logs/{folder_name}.txt", "a", encoding="utf-8")
-
 def set_up_proxy(proxy):
     os.system(f'''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /t REG_SZ /d {proxy} /f
 taskkill /f /im SystemSettings.exe && start ms-settings:network-proxy
