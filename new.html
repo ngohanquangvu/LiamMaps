@@ -247,6 +247,7 @@ def send_mess():
             frame_text_box.configure(state = "normal")
             frame_text_box.insert(customtkinter.END, f'{email}|{pss} bị khóa hoặc sai pass, tiến hành đổi mail\n')
             frame_text_box.configure(state = "disabled")
+            open("mail_erro.txt","a",encoding="utf-8").write(f"{email}|{pss}\n")
             file_sender.remove(dadada)
             run(subject,receiver,content)
         except Exception as e:
