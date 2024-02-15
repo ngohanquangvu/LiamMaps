@@ -1,0 +1,314 @@
+status_running = False
+
+def set_up_proxy(proxy):
+    os.system(f'''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /t REG_SZ /d {proxy} /f
+taskkill /f /im SystemSettings.exe && start ms-settings:network-proxy
+taskkill /f /im SystemSettings.exe''')
+
+def turn_on():
+    os.system('''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f
+taskkill /f /im SystemSettings.exe && start ms-settings:network-proxy
+taskkill /f /im SystemSettings.exe''')
+    
+def clear_proxy():
+    os.system('''reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f
+reg delete "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /f
+reg delete "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyOverride /f
+taskkill /f /im SystemSettings.exe && start ms-settings:network-proxy
+taskkill /f /im SystemSettings.exe''')
+
+app = customtkinter.CTk()
+app.title("SPAM MAIL")
+app.geometry("800x630")
+app.rowconfigure((0,1 ),weight=3)
+app.rowconfigure(2, weight=1)
+app.columnconfigure(0, weight=1)
+
+control_frame = customtkinter.CTkFrame(app, width=800, height=180)
+control_frame.grid(row = 0, column = 0, sticky = "nsew")
+control_frame.rowconfigure(0, weight=1)
+control_frame.columnconfigure((0,1,2,3,4), weight=1)
+
+sender_frame = customtkinter.CTkFrame(control_frame, width=160, height=180)
+sender_frame.grid(row = 0, column = 0, sticky = "nsew")
+sender_frame.columnconfigure(0, weight=1)
+sender_frame.rowconfigure((0, 1, 2), weight=1)
+
+file_sender = []
+def open_sender():
+    global file_sender
+    file_sound = filedialog.askopenfilename(title="Chọn file mail gửi")
+    if file_sound!="":
+        list_uid = open(file_sound, "r", encoding="utf-8").readlines()
+        file_sender = [line.strip("\n") for line in list_uid]
+        number_of_sender.configure(text = f"Số Mail gửi: {len(file_sender)}")
+
+email_sender = customtkinter.CTkButton(sender_frame, text="Nhập Mail Gửi", width=160, height=60, command=open_sender)
+email_sender.grid(row = 0, column = 0, sticky = "nsew")
+number_of_sender = customtkinter.CTkLabel(sender_frame, text="Số mail gửi: 0", width=160, height=60)
+number_of_sender.grid(row = 1, column = 0, sticky = "nsew")
+
+content = ""
+
+def contents():
+    global content
+    file_content = filedialog.askopenfilename(title="Chọn file Template")
+    if file_content!="":
+        content = open(file_content,errors="replace", encoding="utf-8").read()
+        template_log.configure(state = "normal")
+        template_log.insert(customtkinter.END, f"Nhập thành công file template: {file_content}")
+        template_log.configure(state = "disabled")
+
+template_input = customtkinter.CTkButton(sender_frame, text="Nhập Template", width= 160, height = 60, command=contents)
+template_input.grid(row = 2, column = 0, sticky = "nsew")
+
+
+receiver_frame = customtkinter.CTkFrame(control_frame, width=160, height=180)
+receiver_frame.grid(row = 0, column = 1, sticky = "nsew")
+receiver_frame.columnconfigure(0, weight=1)
+receiver_frame.rowconfigure((0, 1, 2), weight=1)
+
+file_receiver = []
+def open_ck():
+    global file_receiver
+    file_text_path = filedialog.askopenfilename(title="Chọn file mail nhận")
+    if file_text_path!="":
+        frame_text_box.configure(state = "normal")
+        list_ck = open(file_text_path, "r", encoding="utf-8").readlines()
+        file_receiver = [line.strip("\n") for line in list_ck]
+        number_of_receiver.configure(text = f"Số Mail Nhận: {len(file_receiver)}")
+
+email_receiver = customtkinter.CTkButton(receiver_frame, text="Nhập Mail Nhận", width=160, height=60, command=open_ck)
+email_receiver.grid(row = 0, column = 0, sticky = "nsew")
+number_of_receiver = customtkinter.CTkLabel(receiver_frame, text="Số Mail Nhận: 0", width=160, height=60)
+number_of_receiver.grid(row = 1, column = 0, sticky = "nsew")
+
+def del_template():
+    global content
+    content = ""
+    template_log.configure(state = "normal")
+    template_log.insert(customtkinter.END, f"Xóa thành công file template")
+    template_log.configure(state = "disabled")
+
+template_del = customtkinter.CTkButton(receiver_frame, text="Xóa Template", width= 160, height = 60, command=del_template)
+template_del.grid(row = 2, column = 0, sticky = "nsew")
+
+proxy_frame = customtkinter.CTkFrame(control_frame, width=160, height=180)
+proxy_frame.grid(row = 0, column = 2, sticky = "nsew")
+proxy_frame.columnconfigure(0, weight=1)
+proxy_frame.rowconfigure((0, 1), weight=1)
+
+list_key_proxy = []
+def open_proxy_key():
+    global list_key_proxy
+    file_sound = filedialog.askopenfilename(title="Chọn file key proxy")
+    if file_sound!="":
+        list_uid = open(file_sound, "r", encoding="utf-8").readlines()
+        list_key_proxy = [line.strip("\n") for line in list_uid]
+        number_of_api_proxy.configure(text = f"Số KEY PROXY: {len(list_key_proxy)}")
+
+def get_proxy():
+    global list_key_proxy, status_running
+    if status_running == True:
+        try:
+            if len(list_key_proxy)>0:
+                    k = random.choice(list_key_proxy)
+                    a = requests.get(f"http://proxy.shoplike.vn/Api/getNewProxy?access_token={k}")
+                    try:
+                        frame_text_box.configure(state = "normal")
+                        frame_text_box.insert(customtkinter.END, f'Lấy proxy thành công\n')
+                        frame_text_box.configure(state = "disabled")
+                        return a.json()["data"].get("proxy")
+                    except:
+                        if "giay de get proxy moi" in a.text:
+                            aa = requests.get(f"http://proxy.shoplike.vn/Api/getCurrentProxy?access_token={k}").json()
+                            frame_text_box.configure(state = "normal")
+                            frame_text_box.insert(customtkinter.END, f'Proxy chưa reset, lấy proxy hiện tại thành công\n')
+                            frame_text_box.configure(state = "disabled")
+                            return aa["data"].get("proxy")
+                        elif "Het proxy, thu lai sau" in a.text:
+                            frame_text_box.configure(state = "normal")
+                            frame_text_box.insert(customtkinter.END, f'Tạm thời hết proxy, đợi 10s để tiến hành lấy lại\n')
+                            frame_text_box.configure(state = "disabled")
+                            time.sleep(10)
+                            return get_proxy()
+                        elif "Key khong ton tai hoac da het han" in a.text:
+                            frame_text_box.configure(state = "normal")
+                            frame_text_box.insert(customtkinter.END, f'Key {k} hết hạn, tiến hành đổi key proxy\n')
+                            frame_text_box.configure(state = "disabled")
+                            list_key_proxy.remove(k)
+                            return get_proxy()
+                        else:
+                            frame_text_box.configure(state = "normal")
+                            frame_text_box.insert(customtkinter.END, f'Lấy proxy thất bại, tiến hành lấy lại\n')
+                            frame_text_box.configure(state = "disabled")
+                            time.sleep(10)
+                            return get_proxy()
+
+            else:
+                return "None"
+        except Exception as e:
+                print(e)
+                frame_text_box.configure(state = "normal")
+                frame_text_box.insert(customtkinter.END, f'Lấy proxy không thành công\n\n')
+                frame_text_box.configure(state = "disabled")
+                return get_proxy()
+    else:
+        return "stop"
+
+
+api_proxy_input = customtkinter.CTkButton(proxy_frame, text="Nhập KEY PROXY", width=160, height=90, command=open_proxy_key)
+api_proxy_input.grid(row = 0, column = 0, sticky = "nsew")
+number_of_api_proxy = customtkinter.CTkLabel(proxy_frame, text="Số KEY PROXY: 0", width=160, height=90)
+number_of_api_proxy.grid(row = 1, column = 0, sticky = "nsew")
+
+attach = customtkinter.CTkFrame(control_frame, width=160, height=180)
+attach.grid(row = 0, column = 3, sticky = "nsew")
+attach.columnconfigure(0, weight=1)
+attach.rowconfigure((0, 1, 2), weight=1)
+
+file_attach = []
+def attach_file():
+    global file_attach
+    file_text_path = filedialog.askopenfilenames(title="Chọn file đính kém")
+    if file_text_path!="":
+        file_attach = file_text_path
+        number_of_file_attach.configure(text = f"Số file đính kèm: {len(file_text_path)}")
+
+file_attach_input = customtkinter.CTkButton(attach, text="Nhập file đính kèm", width=160, height=60, command=attach_file)
+file_attach_input.grid(row = 0,column = 0, sticky = "nsew")
+number_of_file_attach = customtkinter.CTkLabel(attach, text="Số file đính kèm: 0", width=160, height=60)
+number_of_file_attach.grid(row = 1, column = 0, sticky = "nsew")
+delay_input = customtkinter.CTkEntry(attach, width=160, height=60, placeholder_text="Nhập Delay ( giây )")
+delay_input.grid(row = 2, column = 0, sticky = "nsew")
+
+start_frame = customtkinter.CTkFrame(control_frame, width=160, height=180)
+start_frame.grid(row = 0, column = 4, sticky = "nsew")
+start_frame.columnconfigure(0, weight=1)
+start_frame.rowconfigure((0,1), weight=1)
+
+def send_mess():
+    global status_running
+    def run(subject,receiver,content):
+        try:
+            p = get_proxy()
+            if p == "stop":
+                return
+            elif p != "None":
+                set_up_proxy(p)
+                turn_on()
+                frame_text_box.configure(state = "normal")
+                frame_text_box.insert(customtkinter.END, f'Thiết lập thành công {p} làm proxy\n')
+                frame_text_box.configure(state = "disabled")
+            dadada = random.choice(file_sender)
+            data = dadada.strip("\n").split("|")
+            email = data[0]
+            pss = data[1]
+            if email.split(":")[0].split("@")[1]=="gmail.com":
+                imap = "smtp.gmail.com"
+                port = 587
+            else:
+                imap = "smtp-mail.outlook.com"
+                port = 587
+            server = smtplib.SMTP(imap, port)
+            server.starttls()
+            server.login(email,pss)
+
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'Đăng nhập thành công vào {email}|{pss}\n')
+            frame_text_box.configure(state = "disabled")
+
+            msg = MIMEMultipart()
+            msg['From'] = email
+            msg['To'] = receiver
+            msg['Subject'] = subject
+
+
+            body = f"""
+            {content}
+            """
+
+            if file_attach != "":
+                from email.mime.application import MIMEApplication
+                with open(random.choice(file_attach), 'rb') as f:
+                    attachment = MIMEApplication(f.read(), _subtype = os.path.basename(f.name).split(".")[1])
+                    attachment.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f.name))
+                    msg.attach(attachment)
+            if content!="":
+                msg.attach(MIMEText(body, 'html', "utf-8"))
+
+            server.send_message(msg)
+            server.quit()
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'Gửi thành công tới {i}\n\n')
+            frame_text_box.configure(state = "disabled")
+
+        except smtplib.SMTPAuthenticationError:
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'{email}|{pss} bị khóa hoặc sai pass, tiến hành đổi mail\n')
+            frame_text_box.configure(state = "disabled")
+            file_sender.remove(dadada)
+            run(subject,receiver,content)
+        except Exception as e:
+            print(e)
+            frame_text_box.configure(state = "normal")
+            frame_text_box.insert(customtkinter.END, f'Gửi thất bại tới {i}\n\n')
+            frame_text_box.configure(state = "disabled")
+            if status_running ==True:
+                run(subject,receiver,content)
+    for j in file_receiver:
+        if status_running == True:
+            i = j.strip("\n")
+            subject = subject_input.get()
+            run(subject, i, content)
+            time.sleep(int(delay_input.get()))
+        else:
+            break
+    clear_proxy()
+    frame_text_box.configure(state = "normal")
+    frame_text_box.insert(customtkinter.END, f'Hoàn thành spam đến toàn bộ list mail \n\n')
+    frame_text_box.configure(state = "disabled")
+    status.configure(text = "STATUS: NOT WORKING")
+
+
+def stop():
+    global status_running
+    def stopp():
+        global status_running
+        status_running = False
+    t = threading.Thread(target=stopp)
+    t.start()
+
+def start():
+        global status_running
+        if status_running == False:
+            status_running = True
+        status.configure(text = "STATUS: WORKING")
+        t = threading.Thread(target=send_mess)
+        t.start()
+
+start_button = customtkinter.CTkButton(start_frame, width=160, height=90, text="START", command=start)
+start_button.grid(row = 0, column = 0, sticky = "nsew")
+stop_button = customtkinter.CTkButton(start_frame, width=160, height=90, text="STOP", command=stop)
+stop_button.grid(row = 1, column = 0, sticky = "nsew")
+
+info_frame = customtkinter.CTkFrame(app, width=800, height=200)
+info_frame.grid(row = 1, column = 0, sticky = "nsew")
+info_frame.rowconfigure((0, 1, 2), weight=1)
+info_frame.columnconfigure(0, weight=1)
+
+subject_input = customtkinter.CTkEntry(info_frame, height=5, placeholder_text="Title")
+subject_input.grid(row = 0, column = 0, sticky = "nsew")
+template_log = customtkinter.CTkTextbox(info_frame, height=150)
+template_log.grid(row = 1, column = 0, sticky = "nsew")
+template_log.configure(state = "disabled")
+status = customtkinter.CTkButton(info_frame, text="STATUS: NOT WORKING", height=45, border_width=3, fg_color="transparent")
+status.grid(row = 2, column = 0, sticky = "nsew")
+status.configure(state = "disabled")
+
+frame_text_box = customtkinter.CTkTextbox(app, width=800, height=160)
+frame_text_box.grid(row = 2, column = 0, sticky = "nsew")
+frame_text_box.configure(state = "disabled")
+
+
+app.mainloop()
